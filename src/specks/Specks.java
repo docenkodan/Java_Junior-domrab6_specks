@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Specks {
 	
-	private int size = 2;						//Размер поля
+	private int size = 3;						//Размер поля
 	private int[][] tab = new int[size][size];	//Поле
 	
 	public void default_pos()			//Позиции решенной игры
@@ -47,13 +47,25 @@ public class Specks {
 	
 	public int min_number_of_steps()	//Вычисление и вывод минимального количества ходов для решения
 	{
-		int steps = 0;
-		for (int i = 0; i<size; i++)
+		int i, j, step = 0, steps = 0;
+		for (i = 0; i<size; i++)
 		{
-			for (int j = 0; j<size; j++)
+			for (j = 0; j<size; j++)
 			{
-				if (tab[i][j] != j+size*i+1)
-				steps = tab[i][j]  +  j+size*i+1;
+				if ((tab[i][j] != j+size*i+1)&&(tab[i][j] != 0))
+				{
+					step = Math.abs(tab[i][j]-(j+size*i+1));
+					while ((step % 3 != 0))
+					{
+						step-=1;
+						steps+=1;
+					}
+					while (step > 0)
+					{
+						step-=3;
+						steps+=1;
+					}
+				}
 			}
 		}
 		return steps;
