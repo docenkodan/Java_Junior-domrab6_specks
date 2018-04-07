@@ -5,23 +5,14 @@ import java.util.Scanner;
 
 public class Specks {
 	
-	private int size = 3;						//Размер поля
-	private int[][] tab = new int[size][size];	//Поле
-	
-	public void default_pos()			//Позиции решенной игры
+	private int size = 3;						// Размер поля
+	private int[][] tab = new int[size][size];	// Поле
+	private int nominal(int i, int j)			// Значение, которое должно быть в точке [i,j]
 	{
-		for (int i = 0; i<size; i++)
-		{
-			for (int j = 0; j<size; j++)
-			{
-				tab[i][j] = j+size*i+1;
-				if ((i+1 == size)&&(j+1 == size))
-					tab[i][j] = 0;
-			}
-		}
+		return j+size*i+1;
 	}
 	
-	public void print_tab()				//Вывод поля
+	public void print_tab()				// Вывод поля
 	{
 		for (int i = 0; i<size; i++)
 		{
@@ -33,7 +24,41 @@ public class Specks {
 		}
 	}
 	
-	public void add_start_pos()		//Ввод начальных позиций
+	public void default_pos()			// Позиции решенной игры
+	{
+		for (int i = 0; i<size; i++)
+		{
+			for (int j = 0; j<size; j++)
+			{
+				tab[i][j] = nominal(i,j);
+				if ((i+1 == size)&&(j+1 == size))
+					tab[i][j] = 0;
+			}
+		}
+	}
+
+	public void start_pos_2x2()			// Ввод начальных позиций
+	{
+		tab[0][0] = 3;	tab[0][1] = 1;
+		tab[1][0] = 2;	tab[1][1] = 0;
+	} 
+
+	public void start_pos_3x3()			// Ввод начальных позиций
+	{
+		tab[0][0] = 8;	tab[0][1] = 7;	tab[0][2] = 6;
+		tab[1][0] = 3;	tab[1][1] = 5;	tab[1][2] = 1;
+		tab[2][0] = 0;	tab[2][1] = 4;	tab[2][2] = 2;
+	} 
+	
+	public void start_pos_4x4()			// Ввод начальных позиций
+	{
+		tab[0][0] = 1;	tab[0][1] = 2;	tab[0][2] = 3;	tab[0][3] = 4;
+		tab[1][0] = 5;	tab[1][1] = 6;	tab[1][2] = 7;	tab[1][3] = 8;
+		tab[2][0] = 9;	tab[2][1] = 10;	tab[2][2] = 11;	tab[2][3] = 12;
+		tab[3][0] = 13;	tab[3][1] = 14;	tab[3][2] = 15;	tab[3][3] = 0;
+	} 
+	
+	public void add_start_pos()			// Ввод начальных позиций
 	{
 		Scanner scan = new Scanner(System.in);
 		for (int i = 0; i<size; i++)
@@ -45,16 +70,16 @@ public class Specks {
 		}
 	} 
 	
-	public int min_number_of_steps()	//Вычисление и вывод минимального количества ходов для решения
+	public int min_number_of_steps()	// Вычисление и вывод минимального количества ходов для решения
 	{
 		int i, j, step = 0, steps = 0;
 		for (i = 0; i<size; i++)
 		{
 			for (j = 0; j<size; j++) 
 			{
-				if ((tab[i][j] != j+size*i+1)&&(tab[i][j] != 0))
+				if ((tab[i][j] != nominal(i,j))&&(tab[i][j] != 0))
 				{
-					step = Math.abs(tab[i][j]-(j+size*i+1));
+					step = Math.abs(tab[i][j]-(nominal(i,j)));
 					while ((step % 3 != 0))
 					{
 						step-=1;
@@ -71,18 +96,390 @@ public class Specks {
 		return steps;
 	}
 	
-	public void change(int i1, int j1, int i2,int j2)//Смена местами двух ячеек
+	private boolean win_game ()			// Игра решена (проверка)
+	{
+		int k = 0;
+		for (int i = 0; i<size; i++)
+		{
+			for (int j = 0; j<size; j++)
+			{
+				if ((tab[i][j] == nominal(i,j))||((i+1 == size)&&(j+1 == size)&&(tab[i][j] == 0)))
+				k++;
+			}
+		}
+		if (k == size*size)
+			return true;
+		else 
+			return false;
+	}
+	
+	private boolean progress_game_3x3 ()// Проверка, нужная для сборки 3х3
+	{
+		if ((tab[0][0] == 1)&&(tab[0][1] == 2)&&(tab[0][2] == 3)&&
+				(tab[1][0] == 7)&&(tab[1][1] == 0)&&(tab[1][2] == 4)&&
+				(tab[2][0] == 8)&&(tab[2][1] == 6)&&(tab[2][2] == 5))
+			return true;
+		else
+			return false;
+	}
+	
+	private void change(int i1, int j1, int i0, int j0)// Смена местами двух ячеек
 	{
 		int changer = 0;
 		changer = tab[i1][j1];
-		tab[i1][j1] = tab[i2][j2];
-		tab[i2][j2] = changer;
+		tab[i1][j1] = tab[i0][j0];
+		tab[i0][j0] = changer;
 	}
 	
-	public void decision ()
+	private void double_change(int i0, int j0, int i1, int j1, int i2, int j2)
 	{
+		change(i1, j1, i0, j0);
+		if ((i1 == i0)&&(j2 == j0))
+		{
+			change(i2, j1, i1, j1);
+			change(i2, j2, i2, j1);
+			change(i0, j0, i2, j2);
+		}
+		else
+		{
+			change(i1, j2, i1, j1);
+			change(i2, j2, i1, j2);
+			change(i0, j0, i2, j2);
+		}
+	}
+	
+	public void decision_2x2 ()
+	{
+		if (tab[0][0] == 0)
+			change(0, 0, 0, 1);
+		if (tab[0][1] == 0)
+			change(0, 1, 1, 1);
+		if (tab[1][0] == 0)
+			change(1, 0, 1, 1);
 		
+		while (!win_game())
+		{
+			double_change(1,1,0,1,1,0);
+		}
+	}
+	
+	public void decision_3x3_0 ()
+	{
+		int i; int j; int i0 = 0; int j0 = 0;
+		// Находим "0"
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == 0)
+				{
+					i0 = i; j0 = j;
+				}
+			}
+		}
+		// Перемещаем 0 в центр
+		if ((i0 != 1)||(j0 != 1))
+			if (i0 == 1)
+			{
+				change(i0, j0, i0, 1);
+				j0 = 1;
+			}
+			else
+				if (j0 == 1)
+				{
+					change(i0, j0, 1, j0);
+					i0 = 1;
+				}
+				else
+					{
+						change(i0, j0, i0, 1);
+						j0 = 1;
+						change(i0, j0, 1, j0);
+						i0 = 1;
+					}	
+	}
+	
+	public void decision_3x3_1 ()
+	{
+		// 1
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 1; int ik = 0; int jk = 0;
+		//Начинаем перемещать каждый элемент на свое место, чтобы все числа стояли по кругу по порядку (кроме 8 и 7)
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 0)||(jk != 0))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik-1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk-1, ik-1, jk);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 1))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk+1);
+				ik = 1; jk = 2;
+			}
+			if ((ik == 0)&&(jk == 2))
+			{
+				double_change(i0, j0, ik+1, jk, ik, jk-1);
+				ik = 1; jk = 2;
+			}
+			if ((ik == 1)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk-1);
+				ik = 0; jk = 1;
+			}
+			if ((ik == 0)&&(jk == 1))
+				double_change(i0, j0, ik+1, jk-1, ik, jk);
+		}
 		
 	}
 	
+	public void decision_3x3_2 ()
+	{
+		// 2
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 2; int ik = 0; int jk = 0;
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 0)||(jk != 1))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik-1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk-1, ik-1, jk);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 1))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk+1);
+				ik = 1; jk = 2;
+			}
+			if ((ik == 0)&&(jk == 2))
+			{
+				double_change(i0, j0, ik+1, jk, ik, jk-1);
+				ik = 1; jk = 2;
+			}
+			if ((ik == 1)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk-1);
+				ik = 0; jk = 1;
+			}
+		}
+	}
+	
+	public void decision_3x3_3 ()
+	{
+		// 3
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 3; int ik = 0; int jk = 0;
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 0)||(jk != 2))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik-1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk-1, ik-1, jk);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 1))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk+1);
+				ik = 1; jk = 2;
+			}
+			if ((ik == 1)&&(jk == 2))
+			{
+				change(1,0,i0,j0);
+				change(0,0,1,0);
+				change(0,1,0,0);
+				change(0,2,0,1);
+				change(1,2,0,2);
+				change(1,1,1,2);
+				change(0,1,1,1);
+				change(0,0,0,1);
+				change(1,0,0,0);
+				change(1,1,1,0);
+				ik = 1; jk = 2;
+			}
+		}
+	}
+	
+	public void decision_3x3_4 ()
+	{
+		// 4
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 4; int ik = 0; int jk = 0;
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 1)||(jk != 2))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik-1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 2))
+			{
+				double_change(i0, j0, ik, jk-1, ik-1, jk);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 1))
+			{
+				double_change(i0, j0, ik, jk, ik-1, jk+1);
+				ik = 1; jk = 2;
+			}
+		}
+	}
+	
+	public void decision_3x3_5 ()
+	{
+		// 5
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 5; int ik = 0; int jk = 0;
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 2)||(jk != 2))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik-1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+			if ((ik == 2)&&(jk == 1))
+			{
+				change(1,0,1,1);
+				change(2,0,1,0);
+				change(2,1,2,0);
+				change(2,2,2,1);
+				change(1,2,2,2);
+				change(1,1,1,2);
+				double_change(i0, j0, 2, 1, 1, 0);
+				change(1,2,1,1);
+				change(2,2,1,2);
+				change(2,1,2,2);
+				change(1,1,2,1);
+			}
+		}
+	}
+	
+	public void decision_3x3_6 ()
+	{
+		// 6-7-8
+		int i; int j; int i0 = 1; int j0 = 1; 
+		int k = 6; int ik = 0; int jk = 0;
+		for (i = 0; i<size; i++)
+		{
+			for (j = 0; j<size; j++)
+			{
+				if (tab[i][j] == k)
+				{
+					ik = i; jk = j;
+				}
+			}
+		}
+		if ((ik != 2)&&(jk != 1))
+		{
+			if ((ik == 2)&&(jk == 0))
+			{
+				double_change(i0, j0, ik+1, jk, ik, jk+1);
+				ik = 1; jk = 0;
+			}
+			if ((ik == 1)&&(jk == 0))
+			{
+				double_change(i0, j0, ik, jk, ik+1, jk+1);
+				ik = 2; jk = 1;
+			}
+		}
+	}
+	
+	public void decision_3x3_7 ()
+	{
+		change(1, 2, 1, 1);
+		change(2, 2, 1, 2);
+		change(2, 1, 2, 2);
+		change(2, 0, 2, 1);
+		change(1, 0, 2, 0);
+		change(1, 1, 1, 0);
+		change(1, 2, 1, 1);
+		change(2, 2, 1, 2);
+	}
 }
