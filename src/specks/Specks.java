@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Specks {
 	
-	private int size = 3;						// Размер поля
+	public int size = 3;						// Размер поля
 	private int[][] tab = new int[size][size];	// Поле
 	private int nominal(int i, int j)			// Значение, которое должно быть в точке [i,j]
 	{
@@ -37,20 +37,20 @@ public class Specks {
 		}
 	}
 
-	public void start_pos_2x2()			// Ввод начальных позиций
+	public void start_pos_2x2()			// Ввод начальных позиций для игры 2х2
 	{
 		tab[0][0] = 3;	tab[0][1] = 1;
 		tab[1][0] = 2;	tab[1][1] = 0;
 	} 
 
-	public void start_pos_3x3()			// Ввод начальных позиций
+	public void start_pos_3x3()			// Ввод начальных позиций для игры 3х3
 	{
 		tab[0][0] = 8;	tab[0][1] = 7;	tab[0][2] = 6;
 		tab[1][0] = 3;	tab[1][1] = 5;	tab[1][2] = 1;
 		tab[2][0] = 0;	tab[2][1] = 4;	tab[2][2] = 2;
 	} 
 	
-	public void start_pos_4x4()			// Ввод начальных позиций
+	public void start_pos_4x4()			// Ввод начальных позиций для игры 4х4
 	{
 		tab[0][0] = 1;	tab[0][1] = 2;	tab[0][2] = 3;	tab[0][3] = 4;
 		tab[1][0] = 5;	tab[1][1] = 6;	tab[1][2] = 7;	tab[1][3] = 8;
@@ -58,7 +58,7 @@ public class Specks {
 		tab[3][0] = 13;	tab[3][1] = 14;	tab[3][2] = 15;	tab[3][3] = 0;
 	} 
 	
-	public void add_start_pos()			// Ввод начальных позиций
+	public void add_start_pos()			// Ввод начальных позиций с клавиатуры
 	{
 		Scanner scan = new Scanner(System.in);
 		for (int i = 0; i<size; i++)
@@ -70,7 +70,7 @@ public class Specks {
 		}
 	} 
 	
-	public int min_number_of_steps()	// Вычисление и вывод минимального количества ходов для решения
+	public int min_number_of_steps()	// Вычисление и вывод минимального количества ходов для решения (не правильно работает)
 	{
 		int i, j, step = 0, steps = 0;
 		for (i = 0; i<size; i++)
@@ -113,7 +113,7 @@ public class Specks {
 			return false;
 	}
 	
-	private boolean progress_game_3x3 ()// Проверка, нужная для сборки 3х3
+	private boolean progress_game_3x3 ()// Еще одна проверка. Нужна для решения 3х3 (не используется)
 	{
 		if ((tab[0][0] == 1)&&(tab[0][1] == 2)&&(tab[0][2] == 3)&&
 				(tab[1][0] == 7)&&(tab[1][1] == 0)&&(tab[1][2] == 4)&&
@@ -123,7 +123,7 @@ public class Specks {
 			return false;
 	}
 	
-	private void change(int i1, int j1, int i0, int j0)// Смена местами двух ячеек
+	private void change(int i1, int j1, int i0, int j0)							// Перемещение ячейки в пустою ячейку [i0, j0]
 	{
 		int changer = 0;
 		changer = tab[i1][j1];
@@ -131,7 +131,7 @@ public class Specks {
 		tab[i0][j0] = changer;
 	}
 	
-	private void double_change(int i0, int j0, int i1, int j1, int i2, int j2)
+	private void double_change(int i0, int j0, int i1, int j1, int i2, int j2)	// Оборот ячеек по/против часовой ([i1,j1] движется первой) с той-же пустой ячейкой как в начале так и в конце
 	{
 		change(i1, j1, i0, j0);
 		if ((i1 == i0)&&(j2 == j0))
@@ -148,7 +148,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_2x2 ()
+	public void decision_2x2 ()			//Решение для 2х2
 	{
 		if (tab[0][0] == 0)
 			change(0, 0, 0, 1);
@@ -163,7 +163,14 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_0 ()
+	/*
+	 * Решение 3х3 состоит в том, чтобы поставить все числа по порядку по кругу по часовой, 
+	 * но 7 и 8 не по порядку, 
+	 * в центре всегда пустая ячейка
+	 * А после из этого положения привести головоломку к собранному виду
+	*/
+	
+	public void decision_3x3_0 ()		//1 часть решения 3х3 (ставим пустую ячейку в центр)
 	{
 		int i; int j; int i0 = 0; int j0 = 0;
 		// Находим "0"
@@ -199,12 +206,10 @@ public class Specks {
 					}	
 	}
 	
-	public void decision_3x3_1 ()
+	public void decision_3x3_1 ()		//2 часть решения 3х3 (ставим 1 на место)
 	{
-		// 1
 		int i; int j; int i0 = 1; int j0 = 1; 
 		int k = 1; int ik = 0; int jk = 0;
-		//Начинаем перемещать каждый элемент на свое место, чтобы все числа стояли по кругу по порядку (кроме 8 и 7)
 		for (i = 0; i<size; i++)
 		{
 			for (j = 0; j<size; j++)
@@ -253,7 +258,7 @@ public class Specks {
 		
 	}
 	
-	public void decision_3x3_2 ()
+	public void decision_3x3_2 ()		//3 часть решения 3х3 (ставим 2 на место)
 	{
 		// 2
 		int i; int j; int i0 = 1; int j0 = 1; 
@@ -303,7 +308,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_3 ()
+	public void decision_3x3_3 ()		//4 часть решения 3х3 (ставим 3 на место)
 	{
 		// 3
 		int i; int j; int i0 = 1; int j0 = 1; 
@@ -357,7 +362,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_4 ()
+	public void decision_3x3_4 ()		//5 часть решения 3х3 (ставим 4 на место)
 	{
 		// 4
 		int i; int j; int i0 = 1; int j0 = 1; 
@@ -397,7 +402,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_5 ()
+	public void decision_3x3_5 ()		//6 часть решения 3х3 (ставим 5 на место)
 	{
 		// 5
 		int i; int j; int i0 = 1; int j0 = 1; 
@@ -441,7 +446,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_6 ()
+	public void decision_3x3_6 ()		//7 часть решения 3х3 (ставим 6, 7 и 8 на место)
 	{
 		// 6-7-8
 		int i; int j; int i0 = 1; int j0 = 1; 
@@ -471,7 +476,7 @@ public class Specks {
 		}
 	}
 	
-	public void decision_3x3_7 ()
+	public void decision_3x3_7 ()		//8 часть решения 3х3 (преобразуем головоломку к собранному виду)
 	{
 		change(1, 2, 1, 1);
 		change(2, 2, 1, 2);
